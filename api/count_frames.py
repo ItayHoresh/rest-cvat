@@ -2,6 +2,9 @@ import models
 from flask import jsonify
 import requestsApi as rqApi
 import traceback
+import logging
+
+logger = logging.getLogger('waitress')
 
 def getCountFinishFramesRequest(data):
     """Get the count of finish frames in specific project\n
@@ -22,6 +25,6 @@ def getCountFinishFramesRequest(data):
         for task in tasks:
             totalFrames+=task['size']
         return str(totalFrames), 200
-    except:
-        traceback.print_exc()
+    except Exception as e:
+        logger.error(e, exc_info=True)
         return jsonify({'message' : 'There is no count of frames to show !'})

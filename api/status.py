@@ -3,6 +3,10 @@ from flask import jsonify, send_file, make_response
 import requestsApi as rqApi
 import traceback
 import collections
+import logging
+
+logger = logging.getLogger('waitress')
+
 
 def getStatusRequest(data):
     """Get the status of task\n
@@ -23,8 +27,8 @@ def getStatusRequest(data):
                                         "source": task['source'],
                                         "status": task['status']}, tasks))
         return jsonify(tasks)
-    except:
-        traceback.print_exc()
+    except Exception as e:
+        logger.error(e, exc_info=True)
         return jsonify({'message' : 'There is no status to show !'})
 
 def getTasksByStatusRequest(data):
@@ -61,8 +65,8 @@ def getTasksByStatusRequest(data):
                           }
                                         
         return jsonify(tasks_by_status)
-    except:
-        traceback.print_exc()
+    except Exception as e:
+        logger.error(e, exc_info=True)
         return jsonify({'message' : 'There is no status to show !'})
 
 def groupBy(array, param):

@@ -8,6 +8,9 @@ from s3cvat import getFileUrl, _get_frame_path
 import traceback
 import urllib3
 import re
+import logging
+
+logger = logging.getLogger('waitress')
 
 def getWatershedImageRequest(data):
     
@@ -50,7 +53,7 @@ def getWatershedImageRequest(data):
         images.seek(0)
 
         return send_file(images, mimetype="application/zip", attachment_filename=str(len(task_sources)) + "_images_" + project.name +".zip", as_attachment=True)
-    except Exception:
-        traceback.print_exc()
+    except Exception as e:
+        logger.error(e, exc_info=True)
         return jsonify({'message' : 'Cannot get images!'})
 
