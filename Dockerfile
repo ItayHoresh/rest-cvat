@@ -1,5 +1,7 @@
 FROM rest-cvat-python
 
+RUN pip install waitress
+
 USER root
 
 ADD . /code
