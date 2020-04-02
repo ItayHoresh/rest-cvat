@@ -1,0 +1,22 @@
+version: "3"
+
+services: 
+  rest-cvat:
+      container_name: rest-cvat
+      image: rest-cvat
+      build: .
+      ports: 
+        - "5000:5000"
+      environment:
+        DB_HOST_IP: 172.18.0.2
+        DB_NAME: cvat
+        DB_PASSWORD: postgres
+        DB_USER: root
+        API_SECRET: verysecretapi
+        CVAT_SERVER: http://172.19.0.3:8080
+        CVAT_API_TOKEN: CVAT_API
+      
+networks:
+  default:
+    external: 
+      name: cvat_default

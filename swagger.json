@@ -1,0 +1,671 @@
+{
+  "info": {
+    "description": "This is a cvat API server",
+    "version": "1.0.0",
+    "title": "Cvat API"
+  },
+  "swagger": "2.0",
+  "tags": [
+    {
+      "name": "project",
+      "description": "Get all project features"
+    },
+    {
+      "name": "task",
+      "description": "Get all task features"
+    },
+    {
+      "name": "user",
+      "description": "User Operations"
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/login": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get token for user",
+        "description": "Login into cvat",
+        "operationId": "login",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Token",
+            "schema": {
+              "$ref": "#/definitions/ApiKey"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/task/create": {
+      "post": {
+        "tags": [
+          "task"
+        ],
+        "summary": "Create new task",
+        "description": "Create new task",
+        "operationId": "createTask",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project.name",
+            "in": "query",
+            "description": "Project Name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "params",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/paramsTask"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid value"
+          },
+          "401": {
+            "description": "A parameter is missing"
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/task/annotations": {
+      "get": {
+        "tags": [
+          "task"
+        ],
+        "summary": "Get task's annotations",
+        "description": "Multiple tasks can be provided with comma separated strings",
+        "operationId": "getAnnotations",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project.name",
+            "in": "query",
+            "description": "Project Name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "description": "Video Source",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation (Every annotation contains box or geometry, not both!!)",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/getAnnotations"
+            }
+          },
+          "400": {
+            "description": "Invalid value"
+          },
+          "401": {
+            "description": "A parameter is missing"
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/task/status": {
+      "get": {
+        "tags": [
+          "task"
+        ],
+        "summary": "Get task's status",
+        "description": "Multiple tasks can be provided with comma separated strings",
+        "operationId": "getStatus",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project.name",
+            "in": "query",
+            "description": "Project Name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "description": "Video Source",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/getStatus"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid status value"
+          },
+          "401": {
+            "description": "A parameter is missing"
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/tasks": {
+      "get": {
+        "tags": [
+          "task"
+        ],
+        "summary": "Finds tasks by status",
+        "description": "Multiple status values can be provided with comma separated strings",
+        "operationId": "findTasksByStatus",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project.name",
+            "in": "query",
+            "description": "Project Name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Status values that need to be considered for filter",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "annotation",
+                "validation",
+                "completed"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/getAllStatus"
+            }
+          },
+          "400": {
+            "description": "Invalid status value"
+          },
+          "401": {
+            "description": "A parameter is missing"
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/watershed/images": {
+      "get": {
+        "tags": [
+          "task"
+        ],
+        "summary": "Get watershed images for a task",
+        "description": "Getting all watershed images for a specific task in a project. You can filter specific images by specifying their source names (separated by commas)",
+        "operationId": "getWateshedImages",
+        "produces": [
+          "application/zip"
+        ],
+        "parameters": [
+          {
+            "name": "project.name",
+            "in": "query",
+            "description": "Project Name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "task.name",
+            "in": "query",
+            "description": "Task Name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "description": "Images' Source Names",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zip file that contains all of the requested images, each image is named according to the source name with _w suffix"
+          },
+          "400": {
+            "description": "Invalid status value"
+          },
+          "401": {
+            "description": "A parameter is missing"
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/update/score/tasks": {
+      "put": {
+        "tags": [
+          "task"
+        ],
+        "summary": "Update all tasks with new score",
+        "description": "Array of videos and score to update in db",
+        "operationId": "updateScoreTasks",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "project.name",
+            "in": "query",
+            "description": "Project Name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "tasks",
+            "description": "Tasks",
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Score"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{message : updated successfully NUMBER videos}"
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ApiKey": {
+      "type": "object",
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "description": "api_key",
+          "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZXhwIjoxNTkyMjA0Mzc2fQ.HaAAWojXU0PXXvKAeEdjJ9D_4Wvk4BPMQNQaXb6NA3B"
+        }
+      }
+    },
+    "getStatus": {
+      "type": "object",
+      "properties": {
+        "project.name": {
+          "type": "string",
+          "description": "project name",
+          "example": "project"
+        },
+        "source": {
+          "type": "string",
+          "description": "task's source",
+          "example": "video100"
+        },
+        "status": {
+          "type": "string",
+          "description": "task status",
+          "enum": [
+            "open",
+            "pending",
+            "closed"
+          ],
+          "example": "pending"
+        }
+      },
+      "xml": {
+        "name": "getStatus"
+      }
+    },
+    "getAnnotations": {
+      "type": "object",
+      "properties": {
+        "project.name": {
+          "type": "string",
+          "description": "project name",
+          "example": "project"
+        },
+        "source": {
+          "type": "string",
+          "description": "task's source",
+          "example": "video100"
+        },
+        "annotations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Tag"
+          },
+          "description": "task's annotations"
+        }
+      },
+      "xml": {
+        "name": "getAnnotations"
+      }
+    },
+    "getAllStatus": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "object",
+          "properties": {
+            "tasks": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Task"
+              }
+            },
+            "total_frames": {
+              "type": "integer",
+              "format": "int64",
+              "example": 52
+            }
+          }
+        }
+      }
+    },
+    "getAllClass": {
+      "type": "object",
+      "properties": {
+        "vehicle": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Tag"
+          }
+        }
+      }
+    },
+    "getInfo": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Task"
+          }
+        },
+        "permissions": {
+          "type": "string",
+          "description": "user's permissions",
+          "enum": [
+            "admin",
+            "manager",
+            "annotator",
+            "observer",
+            "user"
+          ],
+          "example": "annotator"
+        }
+      },
+      "xml": {
+        "name": "getInfo"
+      }
+    },
+    "Task": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "video100"
+        },
+        "project.name": {
+          "type": "string",
+          "example": "project"
+        },
+        "created_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "updated_date": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "xml": {
+        "name": "Task"
+      }
+    },
+    "paramsTask": {
+      "type": "object",
+      "required": [
+        "data"
+      ],
+      "properties": {
+        "data": {
+          "type": "string",
+          "example": "Path/To/File"
+        },
+        "storage": {
+          "type": "string",
+          "example": "sorted"
+        },
+        "task_name": {
+          "type": "string",
+          "example": "video100"
+        },
+        "video_id": {
+          "type": "integer",
+          "example": 1
+        },
+        "score": {
+          "type": "integer",
+          "example": 0.5
+        },
+        "flip_flag": {
+          "type": "boolean",
+          "example": true
+        },
+        "z_order": {
+          "type": "boolean",
+          "example": true
+        },
+        "overlap_size": {
+          "type": "integer",
+          "example": 0
+        },
+        "compress_quality": {
+          "type": "integer",
+          "example": 55
+        },
+        "assignee": {
+          "type": "string",
+          "example": "username"
+        }
+      },
+      "xml": {
+        "name": "paramsTask"
+      }
+    },
+    "Tag": {
+      "type": "object",
+      "properties": {
+        "track_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "class": {
+          "type": "string",
+          "enum": [
+            "person",
+            "vehicle",
+            "animal"
+          ],
+          "example": "vehicle"
+        },
+        "box": {
+          "$ref": "#/definitions/Box"
+        },
+        "attributes(properties)": {
+          "$ref": "#/definitions/Attrs"
+        },
+        "geometry": {
+          "$ref" : "#/definitions/Geometry"
+        }
+      },
+      "xml": {
+        "name": "Tag"
+      }
+    },
+    "Box": {
+      "type": "object",
+      "properties": {
+        "xtl": {
+          "type": "number",
+          "example": "160.96"
+        },
+        "ytl": {
+          "type": "number",
+          "example": "59.20"
+        },
+        "xbr": {
+          "type": "number",
+          "example": "223.24"
+        },
+        "ybr": {
+          "type": "number",
+          "example": "128.94"
+        }
+      },
+      "xml": {
+        "name": "Box"
+      }
+    },
+    "Geometry": {
+      "type" : "object",
+      "properties" : {
+        "type": {
+          "type" : "string",
+          "example" : "polygon"
+        },
+        "coordinates" : {
+          "type" : "string",
+          "example" : "[[ [0,0], [1,0], [1,1] ]]"
+        }
+      }
+    },
+    "Attrs":{
+      "type": "object",
+      "properties" : {
+        "color": {
+          "type" : "string",
+          "example" : "black"
+        },
+        "year": {
+          "type" : "number",
+          "example" : 2008
+        }
+      }
+    },
+    "Score": {
+      "type": "object",
+      "properties": {
+        "video_id": {
+          "type": "integer",
+          "example": 1
+        },
+        "score": {
+          "type": "number",
+          "example": 0.55
+        }
+      },
+      "xml": {
+        "name": "Score"
+      }
+    }
+  },
+  "securityDefinitions": {
+    "basicAuth": {
+      "type": "basic"
+    },
+    "api_key": {
+      "type": "apiKey",
+      "name": "api_key",
+      "in": "header"
+    }
+  }
+}
