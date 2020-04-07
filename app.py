@@ -47,8 +47,7 @@ def token_required(f):
         if 'secret' not in data or data['secret'] != os.environ.get('API_SECRET'):
             if 'apiKey' in request.headers:
                 token = request.headers['apiKey']
-            
-            logger.info(request.headers)
+
             if not token:
                 return jsonify({'message' : 'Token is missing ! Login Required'}), 401
 
