@@ -3,6 +3,9 @@ from flask import jsonify, send_file, make_response
 import requestsApi as rqApi
 from functools import reduce
 import traceback
+import logging
+
+logger = logging.getLogger('waitress')
 
 def getTagsFromDB(data):
     """Get all tags of a tasks
@@ -29,8 +32,8 @@ def getTagsFromDB(data):
             annotations.append(taskAnnotations)
 
         return jsonify(annotations), 200
-    except Exception:
-        traceback.print_exc()
+    except Exception as e:
+        logger.error(e, exc_info=True)
         return jsonify({'tags' : 'There is no tags'})
 
 def getTaskAnnotations(projectName, source):

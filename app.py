@@ -15,6 +15,12 @@ from api.task import createTaskRequest
 from models import *
 from functools import wraps
 import jwt
+import logging
+from waitress import serve
+
+logger = logging.getLogger('waitress')
+logger.setLevel(logging.INFO)
+
 
 # Init app
 app = Flask(__name__)
@@ -39,9 +45,9 @@ def token_required(f):
         if request.method == 'POST':
             data = request.get_json()
         if 'secret' not in data or data['secret'] != os.environ.get('API_SECRET'):
-            if 'api_key' in request.headers:
-                token = request.headers['api_key']
-            
+            if 'apiKey' in request.headers:
+                token = request.headers['apiKey']
+
             if not token:
                 return jsonify({'message' : 'Token is missing ! Login Required'}), 401
 
@@ -182,5 +188,4 @@ def login():
     return response
     
 if __name__ == '__main__':
-    from waitress import serve
     serve(app, host="0.0.0.0", port=5000)

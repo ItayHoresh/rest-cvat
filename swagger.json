@@ -40,7 +40,7 @@
           "200": {
             "description": "Token",
             "schema": {
-              "$ref": "#/definitions/ApiKey"
+              "$ref": "#/definitions/apiKey"
             }
           },
           "401": {
@@ -93,7 +93,7 @@
         },
         "security": [
           {
-            "api_key": []
+            "apiKey": []
           }
         ]
       }
@@ -145,7 +145,7 @@
         },
         "security": [
           {
-            "api_key": []
+            "apiKey": []
           }
         ]
       }
@@ -199,7 +199,7 @@
         },
         "security": [
           {
-            "api_key": []
+            "apiKey": []
           }
         ]
       }
@@ -256,7 +256,7 @@
         },
         "security": [
           {
-            "api_key": []
+            "apiKey": []
           }
         ]
       }
@@ -311,7 +311,7 @@
         },
         "security": [
           {
-            "api_key": []
+            "apiKey": []
           }
         ]
       }
@@ -358,19 +358,19 @@
         },
         "security": [
           {
-            "api_key": []
+            "apiKey": []
           }
         ]
       }
     }
   },
   "definitions": {
-    "ApiKey": {
+    "apiKey": {
       "type": "object",
       "properties": {
-        "api_key": {
+        "apiKey": {
           "type": "string",
-          "description": "api_key",
+          "description": "apiKey",
           "example": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MSwiZXhwIjoxNTkyMjA0Mzc2fQ.HaAAWojXU0PXXvKAeEdjJ9D_4Wvk4BPMQNQaXb6NA3B"
         }
       }
@@ -662,9 +662,9 @@
     "basicAuth": {
       "type": "basic"
     },
-    "api_key": {
+    "apiKey": {
       "type": "apiKey",
-      "name": "api_key",
+      "name": "apiKey",
       "in": "header"
     }
   }

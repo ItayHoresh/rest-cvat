@@ -10,6 +10,9 @@ import requests
 from collections import defaultdict
 import os
 import urllib3
+import logging
+
+logger = logging.getLogger('waitress')
 
 def getOsId(path):
     """Get the id of the object storage according the two dir name in path
@@ -230,7 +233,7 @@ def createTaskRequest(request, current_user):
 
         url = os.environ.get('CVAT_SERVER') + "/create/task"
         
-        print('Task create with params : {}'.format(data))
+        logger.info('Task create with params : {}'.format(data))
 
         data['CVAT_API_TOKEN'] = os.environ.get('CVAT_API_TOKEN')
 
@@ -238,9 +241,9 @@ def createTaskRequest(request, current_user):
 
         return jsonify({'message' : 'task ' + str(data['task_name']) + ' successfully created'}), 200
 
-    except Exception:
-            traceback.print_exc()
-            return jsonify({'message' : 'can\'t create task'}), 401
+    except  Exception as e:
+        logger.error(e, exc_info=True)
+        return jsonify({'message' : 'can\'t create task'}), 401
 
 def putUpdateVideosScore(data, args):
     """Update all videos with the new score 
@@ -266,7 +269,7 @@ def putUpdateVideosScore(data, args):
                     app.db.session.commit()
 
         return jsonify({'message' : 'updated successfully ' + str(countUpdatedVideos) + ' videos'}), 200
-    except Exception:
-        traceback.print_exc()
+    except Exception as e:
+        logger.error(e, exc_info=True)
         return jsonify({'message' : 'can\'t update scores'}), 500
 

@@ -13,7 +13,7 @@ def loginRequest(auth):
     """Login cvat\n
         params:
             auth: json contains username and password
-        return: json contains api_key token
+        return: json contains apiKey token
     """
     if not auth or not auth.username or not auth.password:
         return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'}) 
@@ -28,6 +28,6 @@ def loginRequest(auth):
     if django_pbkdf2_sha256.using(rounds=int(iterations), salt=salt).verify(auth.password, user.password):
         token = jwt.encode({'id' : user.id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=365)}, app.app.config['SECRET_KEY'])
     
-        return jsonify({'api_key' : token.decode('UTF-8')})
+        return jsonify({'apiKey' : token.decode('UTF-8')})
 
     return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'}) 
