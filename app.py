@@ -18,7 +18,7 @@ import jwt
 import logging
 from waitress import serve
 
-logger = logging.getLogger('waitress')
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
@@ -44,6 +44,8 @@ def token_required(f):
         data = {}
         if request.method == 'POST':
             data = request.get_json()
+            if not data:
+                data = request.form.to_dict()
         if 'secret' not in data or data['secret'] != os.environ.get('API_SECRET'):
             if 'apiKey' in request.headers:
                 token = request.headers['apiKey']
@@ -70,6 +72,8 @@ def auth_required(f):
         data = {}
         if request.method == 'POST':
             data = request.get_json()
+            if not data:
+                data = request.form.to_dict()
         if 'secret' not in data or data['secret'] != os.environ.get('API_SECRET'):
             pname = request.args.get('project.name')
             
@@ -168,6 +172,8 @@ def getTags(current_user):
 @auth_required
 def updateVideosScore(current_user):
     data = request.get_json()
+    if not data:
+        data = request.form.to_dict()
     args = request.args
     response = putUpdateVideosScore(data, args)
 

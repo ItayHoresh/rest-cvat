@@ -12,7 +12,8 @@ import os
 import urllib3
 import logging
 
-logger = logging.getLogger('waitress')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 def getOsId(path):
     """Get the id of the object storage according the two dir name in path
@@ -128,25 +129,26 @@ def getMangersUserId(pid):
     return managers
 
 def validateAllParams(data):
+    video_types = ['mp4', 'avi', 'mov', 'png', 'jpeg']
+    video_type = data['data'].split('.')[-1]
+
+
     if data['labels'] == '':
-        return 'labels'
+        return 'labels is empty, labels'
 
-    if data['os_id'] == None:
-        return 'data'
+    if os.environ.get('WITH_OS') == 'True' and data['os_id'] == None:
+        return 'no such object storage, path'
 
-    if data['frame_properties'] == '[]':
-        return 'frame_properties'
-
-    if '.mp4' not in data['data'] and '.avi' not in data['data']:
-        return 'data'
+    if video_type not in video_types:
+        return 'cvat don\'t support this format video, data'
     
     if data['overlap_size'] < 0:
-        return 'overlap_size'
+        return 'overlap_size have to be positive, overlap_size'
     
     if data['compress_quality'] < 0 or data['compress_quality'] > 95:
-        return 'compress_quality'
+        return 'compress_quality '
 
-    if data['storage'] != 'share' and data['storage'] != 'sorted':
+    if data['storage'] != 'share' and data['storage'] != 'sorted' and data['storage'] != 'local':
         return 'storage'
         
     return ''
@@ -161,7 +163,15 @@ def createTaskRequest(request, current_user):
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     try:
-        data = request.get_json()
+        data = request.form.to_dict()
+        if not data:
+            data = request.get_json()
+        files = request.files.getlist('data')
+        logger.info(files)
+        all_files = set()
+        if files:
+            for curr_file in files:
+                all_files.add(('data', (curr_file.filename, curr_file.read())))
 
         missingParam = rqApi.checkIfDataExist(data, ['data'])
         if missingParam != "":
@@ -175,7 +185,9 @@ def createTaskRequest(request, current_user):
         projectName = request.args.get('project.name')
         data['owner'] = current_user.id
         data['project'] = models.Projects.query.filter_by(name=projectName).first().id
-        data['os_id'] = getOsId(data['data'])
+
+        if os.environ.get('WITH_OS') == 'True':
+            data['os_id'] = getOsId(data['data'])
 
         managers = getMangersUserId(data['project'])
 
@@ -237,9 +249,11 @@ def createTaskRequest(request, current_user):
 
         data['CVAT_API_TOKEN'] = os.environ.get('CVAT_API_TOKEN')
 
-        response = requests.post(url, data=data, verify=False)
-
-        return jsonify({'message' : 'task ' + str(data['task_name']) + ' successfully created'}), 200
+        if data['storage'] != 'local':
+            response = requests.post(url, data=data, verify=False)
+        else:
+            response = requests.post(url, data=data, files=all_files, verify=False)
+        return response.text, response.status_code
 
     except  Exception as e:
         logger.error(e, exc_info=True)

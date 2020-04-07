@@ -13,10 +13,11 @@ services:
         DB_PASSWORD: postgres
         DB_USER: root
         API_SECRET: verysecretapi
-        CVAT_SERVER: http://172.24.0.4:8080
+        CVAT_SERVER: http://172.24.0.5:8080
         CVAT_API_TOKEN: CVAT_API
+        WITH_OS: 'False'
       
 networks:
   default:
     external: 
-      name: cvat_default
+      name: improvedcvat_default
