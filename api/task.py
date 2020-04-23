@@ -129,7 +129,7 @@ def getMangersUserId(pid):
     return managers
 
 def validateAllParams(data):
-    video_types = ['mp4', 'avi', 'mov', 'png', 'jpeg']
+    video_types = ['mp4', 'avi', 'mov', 'png', 'jpeg', 'jpg']
     video_type = data['data'].split('.')[-1]
 
 
