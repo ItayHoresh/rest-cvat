@@ -145,7 +145,7 @@ def validateAllParams(data):
     if data['overlap_size'] < 0:
         return 'overlap_size have to be positive, overlap_size'
     
-    if data['compress_quality'] < 0 or data['compress_quality'] > 95:
+    if data['compress_quality'] < 0 or data['compress_quality'] > 100:
         return 'compress_quality '
 
     if data['storage'] != 'share' and data['storage'] != 'sorted' and data['storage'] != 'local':
@@ -222,7 +222,7 @@ def createTaskRequest(request, current_user):
             data['overlap_size'] = 0
 
         if not 'compress_quality' in data:
-            data['compress_quality'] = 95
+            data['compress_quality'] = 100
 
         if not 'assignee' in data:
             data['assignee'] = managers[0]
