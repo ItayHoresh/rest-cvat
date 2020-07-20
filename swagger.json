@@ -386,6 +386,11 @@
         "source": {
           "type": "string",
           "description": "task's source",
+          "example": "video100.mp4"
+        },
+        "name": {
+          "type": "string",
+          "description": "task's source",
           "example": "video100"
         },
         "status": {
@@ -492,6 +497,10 @@
         "name": {
           "type": "string",
           "example": "video100"
+        },
+        "source": {
+          "type": "string",
+          "example": "video100.mp4"
         },
         "project.name": {
           "type": "string",
