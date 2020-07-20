@@ -25,6 +25,7 @@ def getStatusRequest(data):
         tasks = rqApi.parseBytesToJson(tasks.get_data())
         tasks = list(map(lambda task : {"project.name": task['project']['name'],
                                         "source": task['source'],
+                                        "name": task['name'],
                                         "status": task['status']}, tasks))
         return jsonify(tasks)
     except Exception as e:
@@ -56,6 +57,7 @@ def getTasksByStatusRequest(data):
         # Display only requested parameters in task and change to dict instead of list
         tasks_by_status = { status  :   {   "tasks"         : list(map(lambda task : {  "project.name"  : task['project']['name'],
                                                                                         "source"        : task['source'],
+                                                                                        "name"          : task['name'],
                                                                                         "created_date"  : task['created_date'], 
                                                                                         "updated_date"  : task['updated_date']}, tasks)),
                                             "total_frames" : countFrames(tasks)
