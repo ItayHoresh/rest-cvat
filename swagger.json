@@ -7,10 +7,6 @@
   "swagger": "2.0",
   "tags": [
     {
-      "name": "project",
-      "description": "Get all project features"
-    },
-    {
       "name": "task",
       "description": "Get all task features"
     },
@@ -419,6 +415,11 @@
         "source": {
           "type": "string",
           "description": "task's source",
+          "example": "video100.mp4"
+        },
+        "name": {
+          "type": "string",
+          "description": "task's name",
           "example": "video100"
         },
         "annotations": {
@@ -427,6 +428,13 @@
             "$ref": "#/definitions/Tag"
           },
           "description": "task's annotations"
+        },
+        "frameProperties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FrameProperty"
+          },
+          "description": "task's frame properties"
         }
       },
       "xml": {
@@ -577,6 +585,10 @@
           "type": "integer",
           "format": "int64"
         },
+        "frame": {
+          "type": "integer",
+          "format": "int64"
+        },
         "class": {
           "type": "string",
           "enum": [
@@ -598,6 +610,22 @@
       },
       "xml": {
         "name": "Tag"
+      }
+    },
+    "FrameProperty": {
+      "type": "object",
+      "properties": {
+        "frame": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "property": {
+          "type": "string",
+          "example": "value"
+        }
+      },
+      "xml": {
+        "name": "FrameProperty"
       }
     },
     "Box": {
