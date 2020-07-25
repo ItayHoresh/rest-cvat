@@ -74,7 +74,7 @@ def checkifAuthorize(pname, uid):
 
 def parseBytesToJson(data):
     """Return the json object from bytes object"""
-    jsonData=data.decode('utf8').replace("'", '"')
+    jsonData=data.decode('utf8')
     return json.loads(jsonData)
 
 def getJobId(taskId):
