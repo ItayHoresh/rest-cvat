@@ -45,18 +45,24 @@ def getTaskAnnotations(projectName, source):
     task = rqApi.parseBytesToJson(rqApi.getRequest({'project.name' : projectName, 'source' : source}, models.Task).get_data())
 
     if len(task) == 0:
-        return -1
+        # Checking if the source is task name for images task
+        task = rqApi.parseBytesToJson(rqApi.getRequest({'project.name' : projectName, 'name' : source}, models.Task).get_data())
+        if len(task) == 0:
+            return -1
 
     jobId = rqApi.getJobId(task[0]['id'])
 
     labeledBox = getLabeledBox(jobId)
     trackedBox = getTrackedBox(jobId, int(task[0]['size']))
     labeledPolygon = getLabeledPolygon(jobId)
+    frameProperties = getFrameProperties(task[0]['id'], int(task[0]['size']))
 
     taskAnnotations = {
         'project.name': projectName,
         'source' : task[0]['source'],
-        'annotations' : trackedBox + labeledBox + labeledPolygon
+        'annotations' : trackedBox + labeledBox + labeledPolygon,
+        'frameProperties' : frameProperties,
+        'name': task[0]['name']
     }
 
     return taskAnnotations
@@ -68,18 +74,22 @@ def initializeProperties(model, key, value):
     :param value: value to search by key
     :return: dictionary contains the properties
     """
-    vals = rqApi.parseBytesToJson(rqApi.getRequest({key: value}, model).get_data())
-
     attrs = {}
 
-    for val in vals:
-        startIndex = val['spec']['text'].index('=') + 1
+    try:
+        vals = rqApi.parseBytesToJson(rqApi.getRequest({key: value}, model).get_data())
 
-        try:
-            endIndex = val['spec']['text'].index(':')
-        except:
-            endIndex = len(val['spec']['text'])
-        attrs[val['spec']['text'][startIndex : endIndex]] = val['value']
+        for val in vals:
+            startIndex = val['spec']['text'].index('=') + 1
+
+            try:
+                endIndex = val['spec']['text'].index(':')
+            except:
+                endIndex = len(val['spec']['text'])
+            attrs[val['spec']['text'][startIndex : endIndex]] = val['value']
+
+    except Exception as e:
+        logger.error(e, exc_info=True)
 
     return attrs
 
@@ -272,3 +282,47 @@ def parsePointToGeoJsonPolygon(points):
         coordinates.append(list(map(lambda p: float(p), point.split(','))))
     
     return [coordinates]
+
+def getFrameProperties(taskId, taskSize):
+    def getFrame(e):
+      return e['prop']
+    
+    keyFrames = keyFramesProperties(taskId)
+    keyFrames.sort(key=getFrame)
+
+    frameProperties = []
+
+    for i in range(0, len(keyFrames)):
+        if i == len(keyFrames) - 1 or keyFrames[i]['prop'] != keyFrames[i + 1]['prop']:
+            frameProperties.extend(completeProps(keyFrames[i], taskSize))
+        else:
+            frameProperties.extend(completeProps(keyFrames[i], keyFrames[i + 1]['frame']))
+
+    return frameProperties
+    
+
+def keyFramesProperties(taskId):
+    frameProperties = rqApi.parseBytesToJson(rqApi.getRequest({'task.id': str(taskId)}, models.Taskframespec).get_data())
+    keyFrames = []
+    for prop in frameProperties:
+        props = rqApi.parseBytesToJson(rqApi.getRequest({'frameSpec_id': str(prop['id'])}, models.Keyframespec).get_data())
+        if len(props) > 0:
+            frame = {
+                "frame": props[0]['frame'],
+                props[0]['frameSpec']['propVal']['prop']: props[0]['frameSpec']['propVal']['value'],
+                "prop" : props[0]['frameSpec']['propVal']['prop']
+            }
+            keyFrames.append(frame)
+
+    return keyFrames
+
+def completeProps(keyFrame, stopFrame):
+    props = []
+
+    for i in range(keyFrame['frame'], stopFrame):
+        copy = keyFrame.copy()
+        del copy['prop']
+        copy['frame'] = i
+        props.append(copy)
+
+    return props
