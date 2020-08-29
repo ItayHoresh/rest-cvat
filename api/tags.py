@@ -285,34 +285,37 @@ def parsePointToGeoJsonPolygon(points):
 
 def getFrameProperties(taskId, taskSize):
     def getFrame(e):
-      return e['prop']
+        return e['frame']
     
     keyFrames = keyFramesProperties(taskId)
-    keyFrames.sort(key=getFrame)
-
     frameProperties = []
 
-    for i in range(0, len(keyFrames)):
-        if i == len(keyFrames) - 1 or keyFrames[i]['prop'] != keyFrames[i + 1]['prop']:
-            frameProperties.extend(completeProps(keyFrames[i], taskSize))
-        else:
-            frameProperties.extend(completeProps(keyFrames[i], keyFrames[i + 1]['frame']))
+    for key in keyFrames:
+        keyFrames[key].sort(key=getFrame)
+
+        for i in range(0, len(keyFrames[key]) - 1):
+            frameProperties.extend(completeProps(keyFrames[key][i], keyFrames[key][i + 1]['frame']))
 
     return frameProperties
     
 
 def keyFramesProperties(taskId):
     frameProperties = rqApi.parseBytesToJson(rqApi.getRequest({'task.id': str(taskId)}, models.Taskframespec).get_data())
-    keyFrames = []
+    keyFrames = {}
     for prop in frameProperties:
         props = rqApi.parseBytesToJson(rqApi.getRequest({'frameSpec_id': str(prop['id'])}, models.Keyframespec).get_data())
-        if len(props) > 0:
-            frame = {
-                "frame": props[0]['frame'],
-                props[0]['frameSpec']['propVal']['prop']: props[0]['frameSpec']['propVal']['value'],
-                "prop" : props[0]['frameSpec']['propVal']['prop']
+
+        for i in range(0, len(props)):
+            keyFrameSpec = {
+                "frame": props[i]['frame'],
+                props[i]['frameSpec']['propVal']['prop']: props[i]['frameSpec']['propVal']['value'],
+                "prop" : props[i]['frameSpec']['propVal']['prop']
             }
-            keyFrames.append(frame)
+
+            if props[i]['frameSpec']['propVal']['prop'] not in keyFrames.keys():
+                keyFrames[props[i]['frameSpec']['propVal']['prop']] = []
+
+            keyFrames[props[i]['frameSpec']['propVal']['prop']].append(keyFrameSpec)
 
     return keyFrames
 
