@@ -294,8 +294,8 @@ def getFrameProperties(taskId, taskSize):
         keyFrames[key].sort(key=getFrame)
 
         for i in range(0, len(keyFrames[key])):
-            if i == len(keyFrames[key])) - 1:
-                frameProperties.extend(completeProps(keyFrames[key][i], taskSize)
+            if i == len(keyFrames[key]) - 1:
+                frameProperties.extend(completeProps(keyFrames[key][i], taskSize))
             else:
                 frameProperties.extend(completeProps(keyFrames[key][i], keyFrames[key][i + 1]['frame']))
 
